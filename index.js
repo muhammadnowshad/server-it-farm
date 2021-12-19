@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+const host = '0.0.0.0';
 
 const serviceAccount = require('./it-farm-1-firebase-adminsdk.json');
 
@@ -204,6 +205,6 @@ app.get('/', (req, res) => {
   res.send('Running Server!')
 })
 
-app.listen(port, () => {
-  console.log(`listening at ${port}`)
-})
+app.listen(port, host, function() {
+    console.log("Server started.......");
+  });
