@@ -10,11 +10,20 @@ const app = express();
 const port = process.env.PORT || 5000;
 const host = '0.0.0.0';
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+const serviceAccount = require("./it-farm-1-firebase-adminsdk.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
+
+// admin.initializeApp({
+//     credential: admin.credential.cert({
+//         projectId: process.env.FIREBASE_PROJECT_ID, // I get no error here
+//         clientEmail: process.env.FIREBASE_CLIENT_EMAIL, // I get no error here
+//         privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') // NOW THIS WORKS!!!
+//     }),
+//     databaseURL: process.env.FIREBASE_DATABASE_URL
+//   });
 
 
 //middleware
@@ -51,142 +60,142 @@ async function run(){
         const usersCollection = database.collection('users');
 
 
-        // //GET Orders API
-        // app.get('/orders', async(req, res) => {
-        //   const cursor = ordersCollection.find({});
-        //   const orders = await cursor.toArray();
-        //   res.json(orders);
-        // });
+        //GET Orders API
+        app.get('/orders', async(req, res) => {
+          const cursor = ordersCollection.find({});
+          const orders = await cursor.toArray();
+          res.json(orders);
+        });
 
-        // //GET Orders 
-        // app.get('/orders', verifyToken,  async(req, res) => {
-        //   const email = req.query.email;
-        //   const query = { email: email}
-        //   console.log(query)
-        //   const cursor = ordersCollection.find({query});
-        //   const orders = await cursor.toArray();
-        //   res.json(orders);
-        // });
+        //GET Orders 
+        app.get('/orders', verifyToken,  async(req, res) => {
+          const email = req.query.email;
+          const query = { email: email}
+          console.log(query)
+          const cursor = ordersCollection.find({query});
+          const orders = await cursor.toArray();
+          res.json(orders);
+        });
 
-        // //GET Services API
-        // app.get('/services', async(req, res) => {
-        //     const cursor = servicesCollection.find({});
-        //     const services = await cursor.toArray();
-        //     res.send(services);
-        // });
+        //GET Services API
+        app.get('/services', async(req, res) => {
+            const cursor = servicesCollection.find({});
+            const services = await cursor.toArray();
+            res.send(services);
+        });
 
-        // app.get('/users/:email', async (req, res) => {
-        //     const email = req.params.email;
-        //     const query = { email: email };
-        //     const user = await usersCollection.findOne(query);
-        //     let isAdmin = false;
-        //     if (user?.role === 'admin') {
-        //         isAdmin = true;
-        //     }
-        //     res.json({ admin: isAdmin });
-        // })
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            let isAdmin = false;
+            if (user?.role === 'admin') {
+                isAdmin = true;
+            }
+            res.json({ admin: isAdmin });
+        })
 
-        // app.post('/users', async(req, res) => {
-        //   const user = req.body;
-        //   const result = await usersCollection.insertOne(user)
-        //   res.json(result);
-        // //   console.log(result)
-        // });
+        app.post('/users', async(req, res) => {
+          const user = req.body;
+          const result = await usersCollection.insertOne(user)
+          res.json(result);
+        //   console.log(result)
+        });
 
-        // app.put('/users', async (req, res) => {
-        //   const user = req.body;
-        //   const filter ={ email: user.email };
-        //   const options = { upsert: true };
-        //   const updateDoc = { $set: user };
-        //   const result = await usersCollection.updateOne(filter, updateDoc, options );
-        //   res.json(result);
-        // });
+        app.put('/users', async (req, res) => {
+          const user = req.body;
+          const filter ={ email: user.email };
+          const options = { upsert: true };
+          const updateDoc = { $set: user };
+          const result = await usersCollection.updateOne(filter, updateDoc, options );
+          res.json(result);
+        });
 
-        // app.put('/users/admin', verifyToken, async (req, res) => {
-        //     const user = req.body;
-        //     const requester = req.decodedEmail;
-        //     if (requester) {
-        //         const requesterAccount = await usersCollection.findOne({ email: requester });
-        //         if (requesterAccount.role === 'admin') {
-        //             const filter = { email: user.email };
-        //             const updateDoc = { $set: { role: 'admin' } };
-        //             const result = await usersCollection.updateOne(filter, updateDoc);
-        //             res.json(result);
-        //         }
-        //     }
-        //     else {
-        //         res.status(403).json({ message: 'you do not have access to make admin' })
-        //     }
+        app.put('/users/admin', verifyToken, async (req, res) => {
+            const user = req.body;
+            const requester = req.decodedEmail;
+            if (requester) {
+                const requesterAccount = await usersCollection.findOne({ email: requester });
+                if (requesterAccount.role === 'admin') {
+                    const filter = { email: user.email };
+                    const updateDoc = { $set: { role: 'admin' } };
+                    const result = await usersCollection.updateOne(filter, updateDoc);
+                    res.json(result);
+                }
+            }
+            else {
+                res.status(403).json({ message: 'you do not have access to make admin' })
+            }
 
-        // })
+        })
 
 
-        // //GET Single Service
-        // app.get('/services/:id', async(req, res) => {
-        //     const id = req.params.id;
-        //     const query = {_id: ObjectId(id)};
-        //     const service = await servicesCollection.findOne(query);
-        //     res.json(service);
-        // });
+        //GET Single Service
+        app.get('/services/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const service = await servicesCollection.findOne(query);
+            res.json(service);
+        });
 
         
 
-        // //GET status update Order
-        // app.get('/orders/:id', async(req, res) => {
-        //     const id = req.params.id;
-        //     const query = {_id: ObjectId(id)};
-        //     const order = await ordersCollection.findOne(query);
-        //     res.json(order);
-        // });
+        //GET status update Order
+        app.get('/orders/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const order = await ordersCollection.findOne(query);
+            res.json(order);
+        });
 
-        // //API status update Order
-        // app.put('/orders/:id', async(req, res) => {
-        //     const id = req.params.id;
-        //     const updatedStatus = req.body;
-        //     const filter = {_id: ObjectId(id)};
-        //     const options = {upsert: true};
-        //     const updateDoc = {
-        //         $set: {
-        //             status: updatedStatus.status
-        //         },
-        //     };
-        //     const result = await ordersCollection.updateOne(filter, updateDoc, options);
-        //     res.json(result);
-        // });
+        //API status update Order
+        app.put('/orders/:id', async(req, res) => {
+            const id = req.params.id;
+            const updatedStatus = req.body;
+            const filter = {_id: ObjectId(id)};
+            const options = {upsert: true};
+            const updateDoc = {
+                $set: {
+                    status: updatedStatus.status
+                },
+            };
+            const result = await ordersCollection.updateOne(filter, updateDoc, options);
+            res.json(result);
+        });
 
          
 
-        // //POST Services API
-        // app.post('/services', async(req, res) => {
-        //     const service = req.body;  
-        //     const result = await servicesCollection.insertOne(service);
-        //     console.log(result);
-        //     res.json(result);
-        // });
+        //POST Services API
+        app.post('/services', async(req, res) => {
+            const service = req.body;  
+            const result = await servicesCollection.insertOne(service);
+            console.log(result);
+            res.json(result);
+        });
 
-        // //Post Orders API
-        // app.post('/orders', async(req, res) => {
-        //     const order = req.body;
-        //     const result = await ordersCollection.insertOne(order);
-        //     res.json(result);
-        // });
+        //Post Orders API
+        app.post('/orders', async(req, res) => {
+            const order = req.body;
+            const result = await ordersCollection.insertOne(order);
+            res.json(result);
+        });
 
         
-        // //DELETE Order API
-        // app.delete('/orders/:id', async(req, res) => {
-        //     const id = req.params.id;
-        //     const query = {_id: ObjectId(id)};
-        //     const result = await ordersCollection.deleteOne(query);
-        //     res.json(result);
-        // });
+        //DELETE Order API
+        app.delete('/orders/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await ordersCollection.deleteOne(query);
+            res.json(result);
+        });
 
-        // //DELETE service API
-        // app.delete('/services/:id', async(req, res) => {
-        //     const id = req.params.id;
-        //     const query = {_id: ObjectId(id)};
-        //     const result = await ordersCollection.deleteOne(query);
-        //     res.json(result);
-        // });
+        //DELETE service API
+        app.delete('/services/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await ordersCollection.deleteOne(query);
+            res.json(result);
+        });
 
 
     }
