@@ -6,27 +6,16 @@ const ObjectId = require('mongodb').ObjectId;
 const cors = require('cors');
 require('dotenv').config();
 
-const dotenv = require('dotenv');
 
 const app = express();
 const port = process.env.PORT || 5000;
 const host = '0.0.0.0';
 
-// const serviceAccount = require("./it-farm-1-firebase-adminsdk.json");
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+const serviceAccount = require('./it-farm-1-firebase-adminsdk.json');
 
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount)
-// });
-
-// admin.initializeApp({
-//     credential: admin.credential.cert({
-//         projectId: process.env.FIREBASE_PROJECT_ID, // I get no error here
-//         clientEmail: process.env.FIREBASE_CLIENT_EMAIL, // I get no error here
-//         privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') // NOW THIS WORKS!!!
-//     }),
-//     databaseURL: process.env.FIREBASE_DATABASE_URL
-//   });
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 
 //middleware
