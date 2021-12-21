@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000;
 const host = '0.0.0.0';
 
 // const serviceAccount = require('./it-farm-1-firebase-adminsdk.json');
-const serviceAccount = JSON.parse("process.env.FIREBASE_SERVICE_ACCOUNT")
+const serviceAccount = JSON.parse(`${process.env.FIREBASE_SERVICE_ACCOUNT}`);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
